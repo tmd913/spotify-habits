@@ -92,27 +92,24 @@ const PlaylistCounter = props => (
 );
 
 const HoursCounter = props => {
-  let allSongs = props.playlists.reduce(
-    (songs, playlist) => {
-      return songs.concat(playlist.songs);
-    }
-    , []
-  );
+  let allSongs = props.playlists.reduce((songs, playlist) => {
+    return songs.concat(playlist.songs);
+  }, []);
 
   let totalDuration = allSongs.reduce((sum, song) => {
-    return sum += song.duration;
-  }, 0)
+    return (sum += song.duration);
+  }, 0);
 
   return (
     <div style={{ ...defaultStyle, width: "40%", display: "inline-block" }}>
-      <h2>{`${Math.round(totalDuration/(60**2))} Hours`}</h2>
+      <h2>{`${Math.round(totalDuration / 60 ** 2)} Hours`}</h2>
     </div>
   );
 };
 
-const Filter = () => (
+const Filter = props => (
   <div>
-    <input type="text" />
+    <input type="text" onChange={props.handleInputChange} />
     Filter
   </div>
 );
@@ -133,7 +130,8 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      serverData: {}
+      serverData: {},
+      filterText: ""
     };
   }
 
@@ -142,6 +140,10 @@ class App extends Component {
       this.setState({ serverData: fakeServerData });
     }, 1000);
   }
+
+  handleInputChange = event => {
+    this.setState({ filterText: event.target.value });
+  };
 
   render() {
     return (
@@ -153,12 +155,30 @@ class App extends Component {
                 {`${this.state.serverData.user.name}'s Playlists`}
               </h1>
             </header>
-            <PlaylistCounter playlists={this.state.serverData.user.playlists} />
-            <HoursCounter playlists={this.state.serverData.user.playlists} />
-            <Filter />
-            {this.state.serverData.user.playlists.map(playlist => (
-              <Playlist title={playlist.name} songs={playlist.songs} />
-            ))}
+            <PlaylistCounter
+              playlists={this.state.serverData.user.playlists.filter(playlist =>
+                playlist.name
+                  .toLowerCase()
+                  .includes(this.state.filterText.toLowerCase())
+              )}
+            />
+            <HoursCounter
+              playlists={this.state.serverData.user.playlists.filter(playlist =>
+                playlist.name
+                  .toLowerCase()
+                  .includes(this.state.filterText.toLowerCase())
+              )}
+            />
+            <Filter handleInputChange={this.handleInputChange} />
+            {this.state.serverData.user.playlists
+              .filter(playlist =>
+                playlist.name
+                  .toLowerCase()
+                  .includes(this.state.filterText.toLowerCase())
+              )
+              .map(playlist => (
+                <Playlist title={playlist.name} songs={playlist.songs} />
+              ))}
           </div>
         ) : (
           <h1>Loading...</h1>
