@@ -270,7 +270,7 @@ class App extends Component {
       .then(response => response.json())
       .then(playlistData => {
         // array of playlist objects
-        let playlists = playlistData.items.slice(2, 3);
+        let playlists = playlistData.items.slice(0, 1);
         // array of promises pulling track data
         // get track data for each playlist
         let trackDataPromisesArray = playlists.map(playlist => {
